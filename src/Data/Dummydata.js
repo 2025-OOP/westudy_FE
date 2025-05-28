@@ -11,10 +11,10 @@ const Dummydata = {
         {id : 9, name: "방이름 9", participants : 3},
     ],
     private_rooms : [
-        {id: "private1", name: "비공개 스터디룸 1", password: "1234", participants: 3},
-        {id: "private2", name: "비공개 스터디룸 2", password: "5678", participants: 2},
-        {id: "study123", name: "토익 공부방", password: "toeic2024", participants: 7},
-        {id: "math01", name: "수학 집중반", password: "math123", participants: 4}
+        {id: "2299151", name: "이글스 승리 기원방", password: "1234", participants: 3},
+        {id: "2505280", name: "흠냠냐", password: "5678", participants: 2},
+        {id: "0302010", name: "야구 이길때까지 못나가는 방", password: "1234", participants: 7},
+        {id: "0402030", name: "과제하는 방", password: "123456", participants: 4}
     ]
 };
 

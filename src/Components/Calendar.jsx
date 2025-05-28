@@ -23,11 +23,12 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100%;
     padding: 10px;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 0.5em;
     background-color: #bcb69b0d;
     border: none;
     border-radius: 10px;
+    margin-top: 0px;
   }
 
   .react-calendar__tile {
@@ -131,7 +132,7 @@ const CalendarWrap = styled.div`
   width: 100%;
   height: 100%; /* 부모의 높이를 모두 사용 */
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
   gap: 20px;
   padding: 10px; /* 약간의 여백 추가 */
   box-sizing: border-box;
@@ -209,10 +210,15 @@ const Input = styled.input`
   border-radius: 8px;
   font-size: 20px;
   width:70%;
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Sidebar = styled.div`
-  margin-right: 20px;
+  margin-right: 40px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

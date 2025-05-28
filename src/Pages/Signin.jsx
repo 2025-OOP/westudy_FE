@@ -62,6 +62,11 @@ const Signin = () => {
                     value={id}
                     onChange={e => setId(e.target.value)}
                     placeholder="아이디"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleLogin();
+                        }
+                    }}
                 />
                 <InputText 
                     type="password"

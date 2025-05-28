@@ -385,6 +385,11 @@ const Meetlist = () => {
                                 value={privateRoomForm.id}
                                 onChange={(e) => setPrivateRoomForm({...privateRoomForm, id: e.target.value})}
                                 placeholder="ID를 입력하세요."
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleJoinPrivateRoom();
+                                    }
+                                }}
                             />
                         </FormGroup>
 
@@ -395,6 +400,12 @@ const Meetlist = () => {
                                 value={privateRoomForm.password}
                                 onChange={(e) => setPrivateRoomForm({...privateRoomForm, password: e.target.value})}
                                 placeholder="비밀번호를 입력하세요"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleJoinPrivateRoom();
+                                    }
+                                }}
+            
                             />
                         </FormGroup>
 
