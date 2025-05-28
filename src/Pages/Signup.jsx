@@ -7,13 +7,16 @@ import SubmitBtn from '../Components/SubmitBtn';
 import users from '../Data/Userdata';
 
 const Wrapper = styled.div`
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: cetner;
     color: #fff;
 `;
 
 const SignupWrapper = styled.div`
-    margin-top: 220px;
+    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -87,7 +90,7 @@ const Signup = () => {
                 />
 
                 <LoginBtn
-                    onClick={() => navigate('/signin')}
+                    onClick={() => navigate('/')}
                 >
                     로그인 하러가기
                 </LoginBtn>

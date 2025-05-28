@@ -4,7 +4,9 @@ import Profile from "../Icons/Profile.svg";
 import users from "../Data/Userdata";
 import Calendar from "../Components/Calendar";
 import Checkbox from "../Components/Checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../Components/UserContext";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -12,6 +14,14 @@ const Wrapper = styled.div`
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+
+  body {
+    -ms-overflow-style:none;
+  }
+
+  ::-webkit-scrollbar {
+    display : none;
+  }
 
 `;
 
@@ -24,7 +34,7 @@ const ProfileWrapper = styled.div`
   margin: 5vh 10vw;
 
   img {
-    width: 120px;
+    width: 100px;
   }
 `;
 
@@ -41,12 +51,25 @@ const Main = styled.div`
 `;
 
 const Mypage = () => {
+  const navigate = useNavigate();
+  const { currentUser } = useUser();
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/');
+    }
+  },[currentUser, navigate]);
+
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <Wrapper>
       <Topbar />
       <ProfileWrapper>
         <img src={Profile} alt="" />
-        <UserName>한화이글스</UserName>
+        <UserName>{currentUser.id}</UserName>
       </ProfileWrapper>
       <Main>
         <Calendar />

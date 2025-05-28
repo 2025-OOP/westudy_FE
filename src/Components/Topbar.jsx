@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -13,12 +14,17 @@ const Text = styled.div`
     font-size: 2rem;
     font-weight: 600;
     margin-left: 2rem;
+
+    cursor: pointer;
 `;
 
 const Topbar = () => {
+    const navigate = useNavigate();
+
     return (
         <Wrapper>
-            <Text>
+            <Text
+                onClick={() => navigate('/')}>
                 We Study
             </Text>
         </Wrapper>

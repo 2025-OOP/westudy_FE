@@ -5,10 +5,15 @@ import Topbar from '../Components/Topbar';
 import InputText from '../Components/inputText';
 import SubmitBtn from '../Components/SubmitBtn';
 import users from '../Data/Userdata';
+import { useUser } from '../Components/UserContext';
 
 const Wrapper = styled.div`
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     color: #fff;
 `;
 
@@ -19,7 +24,7 @@ const Title = styled.div`
 `
 
 const Signin_Wrapper = styled.div`
-    margin-top: 220px;
+    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,11 +36,14 @@ const Signin = () => {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const { setCurrentUser } = useUser();
 
     const handleLogin = () => {
         const match = users.find(user => user.id === id && user.password === password);
 
         if (match) {
+            setCurrentUser(match); // 로그인한 사용자 정보 저장
+            navigate('/mypage');
             alert('로그인 성공');
             setError('');
         }
@@ -60,6 +68,11 @@ const Signin = () => {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="비밀번호"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleLogin();
+                        }
+                    }}
                 />
                 {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
                 <SubmitBtn 

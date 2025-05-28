@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import moment from "moment";
 import users from "../Data/Userdata";
 import StartBtn from "./SubmitBtn";
+import { useUser } from "../Components/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const GlobalStyle = createGlobalStyle`
   /* 전체 페이지 스크롤바 숨기기 (선택사항) */
@@ -39,9 +41,8 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .react-calendar__tile.saturday {
-  color:#6560ff;
-}
-
+    color:#6560ff;
+  }
 
   .react-calendar__tile--active {
     background-color: #2481A6 !important;
@@ -269,16 +270,30 @@ const Checkbox = styled.input.attrs({ type: 'checkbox' })`
       border-radius: 1px;
     }
   }
-
 `;
-
 
 function Mycalendar() {
     const [value, onChange] = useState(new Date());
-    const [todos, setTodos] = useState({});
+    const [todos, setTodos] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [currentUser] = useState(users[0]);
+    const { currentUser } = useUser();
+    const user = currentUser || users[0];
     const selectedDate = moment(value).format("YYYY-MM-DD");
+    const navigate = useNavigate();
+
+    // 현재 사용자의 events 데이터를 가져오기
+    const getCurrentUserEvents = () => {
+        const currentUserData = users.find(u => u.id === user.id);
+        return currentUserData?.events || {};
+    };
+
+    // 현재 사용자의 events 데이터를 업데이트하기
+    const updateUserEvents = (newEvents) => {
+        const userIndex = users.findIndex(u => u.id === user.id);
+        if (userIndex !== -1) {
+            users[userIndex].events = newEvents;
+        }
+    };
 
     const tileClassName = ({date}) => {
         if(date.getDay() === 6) {
@@ -286,43 +301,55 @@ function Mycalendar() {
         }
     }
   
+    // 현재 선택된 날짜의 할 일 목록 가져오기
+    const getCurrentDayTodos = () => {
+        const currentEvents = getCurrentUserEvents();
+        return currentEvents[selectedDate] || [];
+    };
+
+    // selectedDate가 변경될 때마다 todos 상태 업데이트
+    useEffect(() => {
+        setTodos(getCurrentDayTodos());
+    }, [selectedDate, user.id]);
+
     const handleAddTodo = () => {
-      if (!inputValue.trim()) return;
-      setTodos((prev) => ({
-        ...prev,
-        [currentUser.id]: {
-          ...prev[currentUser.id],
-          [selectedDate]: [
-            ...(prev[currentUser.id]?.[selectedDate] || []),
-            { text: inputValue, checked: false },
-          ],
-        },
-      }));
-      setInputValue("");
+        if (!inputValue.trim()) return;
+        
+        const currentEvents = getCurrentUserEvents();
+        const newEvents = {
+            ...currentEvents,
+            [selectedDate]: [
+                ...(currentEvents[selectedDate] || []),
+                { text: inputValue, checked: false },
+            ],
+        };
+        
+        updateUserEvents(newEvents);
+        setTodos(newEvents[selectedDate]);
+        setInputValue("");
     };
   
     const toggleTodo = (index, checked) => {
-      setTodos((prev) => {
-        // 복사하여 불변성 유지
-        const userTodos = [...(prev[currentUser.id]?.[selectedDate] || [])];
-        userTodos[index] = { ...userTodos[index], checked }; // 객체 복사 후 checked 업데이트
-  
-        return {
-          ...prev,
-          [currentUser.id]: {
-            ...prev[currentUser.id],
-            [selectedDate]: userTodos,
-          },
+        const currentEvents = getCurrentUserEvents();
+        const dayTodos = [...(currentEvents[selectedDate] || [])];
+        dayTodos[index] = { ...dayTodos[index], checked };
+        
+        const newEvents = {
+            ...currentEvents,
+            [selectedDate]: dayTodos,
         };
-      });
+        
+        updateUserEvents(newEvents);
+        setTodos(dayTodos);
     };
   
     const tileContent = ({ date }) => {
-      const dateStr = moment(date).format("YYYY-MM-DD");
-      const dayTodos = todos[currentUser.id]?.[dateStr] || [];
-      return dayTodos.length > 0 ? <div className="dot" /> : null;
+        const dateStr = moment(date).format("YYYY-MM-DD");
+        const currentEvents = getCurrentUserEvents();
+        const dayTodos = currentEvents[dateStr] || [];
+        return dayTodos.length > 0 ? <div className="dot" /> : null;
     };
-  
+
     return (
       <Wrapper>
         <GlobalStyle />
@@ -334,9 +361,9 @@ function Mycalendar() {
             <SidebarContent>
               <TodoPanel>
                 <div style={{ flex: 1, overflowY: "auto", width: "100%" }}>
-                  <Title>{moment(value).format("YYYY년 MM월 DD일")}<br></br>To-Do List</Title>
+                  <Title>{moment(value).format("YYYY년 MM월 DD일")}<br></br>{user.id}님의 To-Do List</Title>
                   <TodoList>
-                    {(todos[currentUser.id]?.[selectedDate] || []).map((item, idx) => (
+                    {todos.map((item, idx) => (
                       <TodoItem key={idx} checked={item.checked}>
                         <Checkbox
                           checked={item.checked}
@@ -353,11 +380,12 @@ function Mycalendar() {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="할 일을 입력하세요"
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddTodo()}
                   />
                   <Button onClick={handleAddTodo}>추가</Button>
                 </InputContainer>
               </TodoPanel>
-              <StartBtn width='350px' text="공부 시작" marginTop="5px" padding="0 20px" />
+              <StartBtn width='350px' text="공부 시작" marginTop="5px" padding="0 20px" onClick={() => navigate('/meetlist')} />
             </SidebarContent>
           </Sidebar>
         </CalendarWrap>

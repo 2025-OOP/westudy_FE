@@ -7,19 +7,21 @@ import Signin from './Pages/Signin';
 import Signup from './Pages/Signup';
 import reportWebVitals from './reportWebVitals';
 import Mypage from './Pages/Mypage';
+import Meetlist from './Pages/Meetlist';
+import { UserProvider } from './Components/UserContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <UserProvider>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/signin" element={<Signin />} />
+        <Route path="/" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/mypage" element={<Mypage />} />
+        <Route path='meetlist' element={ <Meetlist/> } />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
+  </UserProvider>
 );
 
 reportWebVitals();

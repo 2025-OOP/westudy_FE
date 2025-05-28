@@ -29,7 +29,8 @@
     required = false,
     name,
     disabled = false,
-    maxLength
+    maxLength,
+    onKeyDown
     }) => {
     return (
         <StyledInput 
@@ -41,6 +42,7 @@
         name={name}
         disabled={disabled}
         maxLength={maxLength}
+        onKeyDown={onKeyDown}
         />
     );
     };
