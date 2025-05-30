@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import Mypage from './Pages/Mypage';
 import Meetlist from './Pages/Meetlist';
 import { UserProvider } from './Components/UserContext';
+import MeetPage from './Pages/MeetPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -19,6 +20,7 @@ root.render(
         <Route path="/signup" element={<Signup />} />
         <Route path="/mypage" element={<Mypage />} />
         <Route path='meetlist' element={ <Meetlist/> } />
+        <Route path='meetpage' element={ <MeetPage/> } />
       </Routes>
     </BrowserRouter>
   </UserProvider>
