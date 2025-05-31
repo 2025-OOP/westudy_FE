@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import Topbar from "../Components/Topbar";
 import Dummydata from "../Data/Dummydata";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
     ::-webkit-scrollbar {
@@ -288,9 +289,21 @@ const Meetlist = () => {
     })
     const [publicRooms, setPublicRooms] = useState(Dummydata.public_rooms);
     const [privateRooms, setPrivateRooms] = useState(Dummydata.private_rooms);
+    const navigate = useNavigate();
 
     const handleJoinPublicRoom = (roomId) => {
-        alert(`공개방 ${roomId}에 입장합니다.`);
+        // 공개방 정보 찾기
+        const room = publicRooms.find(room => room.id === roomId);
+        if (room) {
+            // 방 정보를 state로 전달하면서 MeetPage로 이동
+            navigate('/meetpage', { 
+                state: { 
+                    roomId: room.id, 
+                    roomName: room.name, 
+                    isPrivate: false 
+                } 
+            });
+        }
     };
 
     const handleJoinPrivateRoom = () => {
@@ -305,7 +318,14 @@ const Meetlist = () => {
         );
 
         if (foundRoom) {
-            alert(`비공개방 "${foundRoom.name}"에 입장합니다.`);
+            // 방 정보를 state로 전달하면서 MeetPage로 이동
+            navigate('/meetpage', { 
+                state: { 
+                    roomId: foundRoom.id, 
+                    roomName: foundRoom.name, 
+                    isPrivate: true 
+                } 
+            });
             setPrivateRoomForm({ id: '', password: '' });
         } else {
             alert('존재하지 않는 방이거나 ID 또는 비밀번호가 올바르지 않습니다.');
@@ -334,6 +354,15 @@ const Meetlist = () => {
             
             setPrivateRooms([...privateRooms, newPrivateRoom]);
             alert(`비공개 공부방 "${createRoomForm.roomName}"이 생성되었습니다.\nID: ${newPrivateRoom.id}`);
+            
+            // 생성 후 바로 입장
+            navigate('/meetpage', { 
+                state: { 
+                    roomId: newPrivateRoom.id, 
+                    roomName: newPrivateRoom.name, 
+                    isPrivate: true 
+                } 
+            });
         } else {
             // 공개방 생성
             const newRoom = {
@@ -344,6 +373,15 @@ const Meetlist = () => {
             
             setPublicRooms([...publicRooms, newRoom]);
             alert(`공개 공부방 "${createRoomForm.roomName}"이 생성되었습니다.`);
+            
+            // 생성 후 바로 입장
+            navigate('/meetpage', { 
+                state: { 
+                    roomId: newRoom.id, 
+                    roomName: newRoom.name, 
+                    isPrivate: false 
+                } 
+            });
         }
 
         setCreateRoomForm({ roomName: '', isPrivate: false, password: '' });

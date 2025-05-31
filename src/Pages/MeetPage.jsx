@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Topbar from "../Components/Topbar";
 
 const Wrapper = styled.div`
@@ -20,10 +20,48 @@ const LeftSection = styled.div`
     padding: 1.5rem;
     background-color: #f8f9fa;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #666;
     font-size: 18px;
+`
+
+const RoomInfo = styled.div`
+    text-align: center;
+    margin-bottom: 20px;
+`
+
+const RoomTitle = styled.h1`
+    font-size: 24px;
+    font-weight: bold;
+    color: #034C8C;
+    margin-bottom: 10px;
+`
+
+const RoomId = styled.p`
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+`
+
+const RoomType = styled.span`
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+    background-color: ${props => props.isPrivate ? '#ff6b6b' : '#51cf66'};
+    color: white;
+`
+
+const MeetPlaceholder = styled.div`
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    color: #999;
 `
 
 const RightSection = styled.div`
@@ -177,8 +215,16 @@ const ExitButton = styled(Button)`
 
 const MeetPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isTimerRunning, setIsTimerRunning] = useState(true);
     const [timer, setTimer] = useState(0); // 초 단위
+    
+    // location.state에서 방 정보 받아오기
+    const roomInfo = location.state || {
+        roomId: "unknown",
+        roomName: "알 수 없는 방",
+        isPrivate: false
+    };
     
     // Mock data - 백엔드 연동 시 제거될 부분
     const [rankingData, setRankingData] = useState([
@@ -226,8 +272,19 @@ const MeetPage = () => {
             <Topbar/>
             <Main>
                 <LeftSection>
-                    {/* 백엔드에서 meet 화면 임베딩될 영역 */}
-                    Meet 화면
+                    <RoomInfo>
+                        <RoomTitle>{roomInfo.roomName}</RoomTitle>
+                        <RoomId>방 ID: {roomInfo.roomId}</RoomId>
+                        <RoomType isPrivate={roomInfo.isPrivate}>
+                            {roomInfo.isPrivate ? '비공개방' : '공개방'}
+                        </RoomType>
+                    </RoomInfo>
+                    <MeetPlaceholder>
+                        {/* 백엔드에서 meet 화면 임베딩될 영역 */}
+                        Meet 화면 영역
+                        <br />
+                        (화상채팅 기능이 여기에 들어갑니다)
+                    </MeetPlaceholder>
                 </LeftSection>
                 <RightSection>
                     <TimerSection>

@@ -24,7 +24,7 @@ const Topbar = () => {
     return (
         <Wrapper>
             <Text
-                onClick={() => navigate('/')}>
+                onClick={() => navigate('/mypage')}>
                 We Study
             </Text>
         </Wrapper>
