@@ -3,7 +3,6 @@ import styled, { createGlobalStyle } from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import moment from "moment";
-import users from "../Data/Userdata";
 import StartBtn from "./SubmitBtn";
 import { useUser } from "../Components/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -278,26 +277,73 @@ const Checkbox = styled.input.attrs({ type: 'checkbox' })`
   }
 `;
 
+// StartBtn을 위한 스타일드 컨테이너
+const StartBtnContainer = styled.div`
+  margin-top: 5px;
+  width: 350px;
+`;
+
+// 로그인 프롬프트 스타일
+const LoginPrompt = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #022859;
+  font-size: 18px;
+  text-align: center;
+  gap: 20px;
+`;
+
 function Mycalendar() {
     const [value, onChange] = useState(new Date());
     const [todos, setTodos] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const { currentUser } = useUser();
-    const user = currentUser || users[0];
-    const selectedDate = moment(value).format("YYYY-MM-DD");
+    const { currentUser, isAuthenticated } = useUser();
     const navigate = useNavigate();
+    
+    const selectedDate = moment(value).format("YYYY-MM-DD");
 
-    // 현재 사용자의 events 데이터를 가져오기
-    const getCurrentUserEvents = () => {
-        const currentUserData = users.find(u => u.id === user.id);
-        return currentUserData?.events || {};
+    // 사용자 정보 가져오기 함수 (수정됨)
+    const getUserInfo = () => {
+      if (!currentUser) return null;
+      return {
+          id: currentUser.username,
+          username: currentUser.username,
+          name: currentUser.username
+      };
+  };
+  const userInfo = getUserInfo();
+
+    // localStorage 키 생성 함수
+    const getEventsStorageKey = () => {
+        return userInfo ? `calendar_events_${userInfo.id}` : null;
     };
 
-    // 현재 사용자의 events 데이터를 업데이트하기
+    // 현재 사용자의 events 데이터를 localStorage에서 가져오기
+    const getCurrentUserEvents = () => {
+        const storageKey = getEventsStorageKey();
+        if (!storageKey) return {};
+        
+        try {
+            const savedEvents = localStorage.getItem(storageKey);
+            return savedEvents ? JSON.parse(savedEvents) : {};
+        } catch (error) {
+            console.error('이벤트 데이터 로드 실패:', error);
+            return {};
+        }
+    };
+
+    // 현재 사용자의 events 데이터를 localStorage에 저장하기
     const updateUserEvents = (newEvents) => {
-        const userIndex = users.findIndex(u => u.id === user.id);
-        if (userIndex !== -1) {
-            users[userIndex].events = newEvents;
+        const storageKey = getEventsStorageKey();
+        if (!storageKey) return;
+        
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(newEvents));
+        } catch (error) {
+            console.error('이벤트 데이터 저장 실패:', error);
         }
     };
 
@@ -313,13 +359,22 @@ function Mycalendar() {
         return currentEvents[selectedDate] || [];
     };
 
-    // selectedDate가 변경될 때마다 todos 상태 업데이트
+    // selectedDate나 사용자가 변경될 때마다 todos 상태 업데이트
     useEffect(() => {
-        setTodos(getCurrentDayTodos());
-    }, [selectedDate, user.id]);
+        if (userInfo) {
+            setTodos(getCurrentDayTodos());
+        }
+    }, [selectedDate, userInfo?.id]);
+
+    // 컴포넌트 마운트 시 저장된 이벤트 로드
+    useEffect(() => {
+        if (userInfo) {
+            setTodos(getCurrentDayTodos());
+        }
+    }, [userInfo?.id]);
 
     const handleAddTodo = () => {
-        if (!inputValue.trim()) return;
+        if (!inputValue.trim() || !userInfo) return;
         
         const currentEvents = getCurrentUserEvents();
         const newEvents = {
@@ -336,6 +391,8 @@ function Mycalendar() {
     };
   
     const toggleTodo = (index, checked) => {
+        if (!userInfo) return;
+        
         const currentEvents = getCurrentUserEvents();
         const dayTodos = [...(currentEvents[selectedDate] || [])];
         dayTodos[index] = { ...dayTodos[index], checked };
@@ -350,11 +407,28 @@ function Mycalendar() {
     };
   
     const tileContent = ({ date }) => {
+        if (!userInfo) return null;
+        
         const dateStr = moment(date).format("YYYY-MM-DD");
         const currentEvents = getCurrentUserEvents();
         const dayTodos = currentEvents[dateStr] || [];
         return dayTodos.length > 0 ? <div className="dot" /> : null;
     };
+
+    // 로그인하지 않은 경우 로그인 프롬프트 표시
+    if (!isAuthenticated || !userInfo) {
+        return (
+            <Wrapper>
+                <GlobalStyle />
+                <LoginPrompt>
+                    <div>캘린더를 사용하려면 로그인이 필요합니다.</div>
+                    <Button onClick={() => navigate('/')}>
+                        로그인하러 가기
+                    </Button>
+                </LoginPrompt>
+            </Wrapper>
+        );
+    }
 
     return (
       <Wrapper>
@@ -367,7 +441,10 @@ function Mycalendar() {
             <SidebarContent>
               <TodoPanel>
                 <div style={{ flex: 1, overflowY: "auto", width: "100%" }}>
-                  <Title>{moment(value).format("YYYY년 MM월 DD일")}<br></br>{user.id}님의 To-Do List</Title>
+                  <Title>
+                    {moment(value).format("YYYY년 MM월 DD일")}<br />
+                    {userInfo.username}님의 To-Do List
+                  </Title>
                   <TodoList>
                     {todos.map((item, idx) => (
                       <TodoItem key={idx} checked={item.checked}>
@@ -391,7 +468,14 @@ function Mycalendar() {
                   <Button onClick={handleAddTodo}>추가</Button>
                 </InputContainer>
               </TodoPanel>
-              <StartBtn width='350px' text="공부 시작" marginTop="5px" padding="0 20px" onClick={() => navigate('/meetlist')} />
+              <StartBtnContainer>
+                <StartBtn 
+                  width='100%' 
+                  text="공부 시작" 
+                  padding="0 20px" 
+                  onClick={() => navigate('/meetlist')} 
+                />
+              </StartBtnContainer>
             </SidebarContent>
           </Sidebar>
         </CalendarWrap>

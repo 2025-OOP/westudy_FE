@@ -19,8 +19,8 @@ root.render(
         <Route path="/" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/mypage" element={<Mypage />} />
-        <Route path='meetlist' element={ <Meetlist/> } />
-        <Route path='meetpage' element={ <MeetPage/> } />
+        <Route path='/meetlist' element={ <Meetlist/> } />
+        <Route path='/meetpage' element={ <MeetPage/> } />
       </Routes>
     </BrowserRouter>
   </UserProvider>

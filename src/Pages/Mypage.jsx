@@ -1,28 +1,16 @@
 import styled from "styled-components";
 import Topbar from "../Components/Topbar";
 import Profile from "../Icons/Profile.svg";
-import users from "../Data/Userdata";
 import Calendar from "../Components/Calendar";
-import Checkbox from "../Components/Checkbox";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../Components/UserContext";
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 100vh; /* 전체 화면 높이 사용 */
+  height: 100vh;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-
-  body {
-    -ms-overflow-style:none;
-  }
-
-  ::-webkit-scrollbar {
-    display : none;
-  }
-
 `;
 
 const ProfileWrapper = styled.div`
@@ -44,23 +32,19 @@ const UserName = styled.div`
 `;
 
 const Main = styled.div`
-  flex: 1; /* 남은 공간을 모두 차지 */
-  min-height: 0; /* flex 자식 요소가 축소될 수 있도록 */
+  flex: 1;
+  min-height: 0;
   width: 100%;
   height: 70vh;
 `;
 
 const Mypage = () => {
   const navigate = useNavigate();
-  const { currentUser } = useUser();
+  const { currentUser, isAuthenticated } = useUser();
 
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    }
-  },[currentUser, navigate]);
-
-  if (!currentUser) {
+  if (!isAuthenticated || !currentUser) {
+    // 로그인 안 했으면 로그인 페이지로
+    navigate("/");
     return null;
   }
 
@@ -69,7 +53,7 @@ const Mypage = () => {
       <Topbar />
       <ProfileWrapper>
         <img src={Profile} alt="" />
-        <UserName>{currentUser.id}</UserName>
+        <UserName>{currentUser.username}</UserName>
       </ProfileWrapper>
       <Main>
         <Calendar />
